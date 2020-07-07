@@ -1,0 +1,187 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Net;
+using System.IO;
+using Ionic.Zip;
+using System.Windows.Forms;
+using Newtonsoft.Json;
+using WickedHamsters;
+
+
+namespace TestApp
+{
+    public partial class TestApp : Form
+    {
+        bool downloadComplete = false;
+        bool launcherUpdating = false;
+        bool isBeginInstalled = false;
+        bool isVersionCheck = false;
+        Version serverVer;
+
+        public TestApp()
+        {
+            InitializeComponent();
+            CleanUp();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            
+        }
+        void CheckUpdate()
+        {
+            if (isBeginInstalled)
+            {
+                return;
+            }
+            else
+            {
+                status.Text = "Sprawdzam dostępność aktualizacji...";
+                string serverVersion = "http://wickedlauncher.5v.pl/launcher/meta.dbg";
+                string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
+                //current
+                string currentRead = File.ReadAllText(currentVersion);
+                Meta deserializedCurrentMeta = JsonConvert.DeserializeObject<Meta>(currentRead);
+                string localVersion = deserializedCurrentMeta.version.ToString();
+                versionlabel.Text = "Aktualna wersja: " + localVersion;
+                //server
+
+                string serverRead = WickedHamsters.Utils.GetTextFile(serverVersion);
+                Meta deserializedServerMeta = JsonConvert.DeserializeObject<Meta>(serverRead);
+                string serverVersionn = deserializedServerMeta.version.ToString();
+                serverversionlbl.Text = "Wersja na serwerze: " + serverVersionn;
+                serverVer = deserializedServerMeta.version;
+                if (isVersionCheck)
+                {
+                    if (deserializedServerMeta.version == deserializedCurrentMeta.version)
+                    {
+                        status.Text = "Posiadasz aktualną wersję";
+                        Application.DoEvents();
+                        isVersionCheck = false;
+                        return;
+                    }
+                    else
+                    {
+                        status.Text = "Znaleziono aktualizację!";
+                        Download(deserializedServerMeta.url);
+                        status.Text = "Pobieram...";
+                        isVersionCheck = false;
+                        return;
+                    }
+                }
+
+            }
+        }
+        void UpdateLauncher()
+        {
+            //change name
+            status.Text = "Instalacja";
+            int filelist = Directory.GetFiles(Directory.GetCurrentDirectory(), "*", SearchOption.TopDirectoryOnly).Length;
+            string[] filesToOld = Directory.GetFiles(Directory.GetCurrentDirectory(), "*", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < filelist; i++)
+            {
+                if (filesToOld[i] == Directory.GetCurrentDirectory() + "\\meta.dbg" || filesToOld[i] == Directory.GetCurrentDirectory() + "\\launcher.zip")
+                {
+                    continue ;
+                }
+                else
+                {
+                    File.Move(filesToOld[i], filesToOld[i] + ".old");
+                }
+                
+            }
+            //extract zip
+            using (ZipFile zip = new ZipFile(Directory.GetCurrentDirectory() + "\\launcher.zip"))
+            {
+                zip.ExtractAll(Directory.GetCurrentDirectory());
+            }
+
+            //update meta
+            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
+            Meta meta = new Meta();
+            meta.version = serverVer;
+            meta.url = "";
+            string write = JsonConvert.SerializeObject(meta);
+            StreamWriter file = File.CreateText(currentVersion);
+            file.Write(write);
+            file.Close();
+
+            File.Delete(Directory.GetCurrentDirectory() + "\\launcher.zip");
+            Application.Restart();
+        }
+        void CleanUp()
+        {
+            
+            int filelist = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.old", SearchOption.TopDirectoryOnly).Length;
+            string[] filesToDel = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.old", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < filelist; i++)
+            {
+                File.Delete(filesToDel[i]);
+            }
+
+        }
+        void MakeNewJson()
+        {
+            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
+            Meta meta = new Meta();
+            meta.version = new Version("0.1.0.0");
+            meta.url = "https://doc-14-5c-docs.googleusercontent.com/docs/securesc/nke845s47lsc0f9ldr2m9gapal47qm72/65rvtprl8nsrdqo6dfsvj16fhgtcitc2/1580496300000/11875819559820862250/11875819559820862250/1SWwA0cFmE5q97ky2q2EUroe8dzlG3ukE?e=download&gd=true&access_token=ya29.Il-8BzgEcMwRg-sqYFAYfuwvEpxD8i9WrESqAi0MIRs0NPHtXHIzxY3YDv610oB4dw2_jJ1etb8rdK5dYwUrpfCwxuCDFNcXGq3O8W8Z4OvIuBef-Cx4yY4nTNlDqkdLJg";
+            string write = JsonConvert.SerializeObject(meta);
+            StreamWriter file = File.CreateText(currentVersion);
+            file.Write(write);
+            file.Close();
+        }
+        void Download(string launcherurl)
+        {
+            string outputFile = Directory.GetCurrentDirectory() + "/launcher.zip";
+            Uri launcherDownloadUri = new Uri(launcherurl, UriKind.Absolute);
+
+            WebClient downloader = new WebClient();
+            downloader.DownloadProgressChanged += new DownloadProgressChangedEventHandler(downloader_DownloadProgressChanged);
+            downloader.DownloadFileCompleted += new AsyncCompletedEventHandler(downloader_DownloadFileCompleted);
+            downloader.DownloadFileAsync(launcherDownloadUri, outputFile);
+
+            downloadComplete = false;
+        }
+
+        void downloader_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            Console.WriteLine("{0}    downloaded {1} of {2} bytes. {3} % complete...",
+            (string)e.UserState,
+            e.BytesReceived,
+            e.TotalBytesToReceive,
+            e.ProgressPercentage);
+        }
+
+        void downloader_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            downloadComplete = true;
+            isBeginInstalled = true;
+            UpdateLauncher();
+        }
+
+        private void checkUpdateBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void updateButt_Click(object sender, EventArgs e)
+        {
+            isVersionCheck = true;
+            launcherUpdating = true;
+            CheckUpdate();
+        }
+    }
+    public class Meta{
+        public Version version;
+        public string url;
+    }
+}

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedHamsters", "WickedHamsters\WickedHamsters.csproj", "{B93066B0-1BA7-4437-97DB-816C5DEC68C6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B93066B0-1BA7-4437-97DB-816C5DEC68C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B93066B0-1BA7-4437-97DB-816C5DEC68C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B93066B0-1BA7-4437-97DB-816C5DEC68C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B93066B0-1BA7-4437-97DB-816C5DEC68C6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DF2A5F3-0FD4-4425-AFC7-93566A36CE98}
+	EndGlobalSection
+EndGlobal
