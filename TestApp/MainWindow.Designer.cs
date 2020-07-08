@@ -92,6 +92,7 @@
             this.Controls.Add(this.startBtn);
             this.Controls.Add(this.progressBar2);
             this.Name = "TestApp";
+            this.Load += new System.EventHandler(this.TestApp_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

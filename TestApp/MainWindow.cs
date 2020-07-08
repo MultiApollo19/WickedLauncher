@@ -76,6 +76,10 @@ namespace TestApp
             CheckUpdate();
         }
 
+        private void TestApp_Load(object sender, EventArgs e)
+        {
+
+        }
     }
     public class Meta{
         public Version version;
