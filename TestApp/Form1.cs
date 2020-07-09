@@ -49,17 +49,23 @@ namespace TestApp
         {
             if (firebaseClient != null)
             {
-                firebaseStatus.Text = "Firebase Status: connected";
+                firebaseStatus.Text = "Firebase status: connected";
             }
             else
             {
-                firebaseStatus.Text = "Firebase Status: disconnected";
+                firebaseStatus.Text = "Firebase status: disconnected";
             }
+        }
+        async void firebaseGetVersion()
+        {
+            FirebaseResponse firebaseResponse = await firebaseClient.GetAsync("app/version");
+            string firebaseVersion = firebaseResponse.ResultAs<string>();
+            Console.WriteLine(firebaseVersion);
         }
         //Apka
         void CheckUpdate()
         {
-            
+            firebaseGetVersion();
             lbl1.Text = "Sprawdzam dostępność aktualizacji...";
             string serverVersion = "http://wickedlauncher.5v.pl/launcher/meta.dbg";
             string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
