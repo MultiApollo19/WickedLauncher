@@ -21,7 +21,7 @@ using FireSharp.Response;
 
 
 namespace TestApp
-{//HEHEHEHEHEHEHEHEHEHHEHEHEHE
+{
     public partial class TestApp : Form
     {
         IFirebaseConfig firebaseConfig = new FirebaseConfig
@@ -34,7 +34,12 @@ namespace TestApp
 
         public TestApp()
         {
+            //Startup
             InitializeComponent();
+            //debug
+            MakeNewJson();
+
+            //firebase
             firebaseClient = new FireSharp.FirebaseClient(firebaseConfig);
             firebaseCheck(fireBaseStatusLabel);
         }
@@ -59,8 +64,12 @@ namespace TestApp
         async void firebaseGetVersion()
         {
             FirebaseResponse firebaseResponse = await firebaseClient.GetAsync("app/version");
-            string firebaseVersion = firebaseResponse.ResultAs<string>();
-            Console.WriteLine(firebaseVersion);
+            string firebaseVersionString = firebaseResponse.ResultAs<string>();
+            Console.WriteLine(firebaseVersionString);
+            int firebaseVersionInt = WickedHamsters.Utils.StringToInt(firebaseVersionString);
+            Console.WriteLine("Wersja int: " + firebaseVersionInt);
+            double firebaseVersionDouble = Convert.ToDouble(firebaseVersionString);
+            Console.WriteLine("Wersja double: " + firebaseVersionDouble);
         }
         //Apka
         void CheckUpdate()
@@ -98,8 +107,7 @@ namespace TestApp
         {
             string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             Meta meta = new Meta();
-            meta.version = new Version("0.1.0.0");
-            meta.url = "https://doc-14-5c-docs.googleusercontent.com/docs/securesc/nke845s47lsc0f9ldr2m9gapal47qm72/65rvtprl8nsrdqo6dfsvj16fhgtcitc2/1580496300000/11875819559820862250/11875819559820862250/1SWwA0cFmE5q97ky2q2EUroe8dzlG3ukE?e=download&gd=true&access_token=ya29.Il-8BzgEcMwRg-sqYFAYfuwvEpxD8i9WrESqAi0MIRs0NPHtXHIzxY3YDv610oB4dw2_jJ1etb8rdK5dYwUrpfCwxuCDFNcXGq3O8W8Z4OvIuBef-Cx4yY4nTNlDqkdLJg";
+            meta.version = 0100;
             string write = JsonConvert.SerializeObject(meta);
             StreamWriter file = File.CreateText(currentVersion);
             file.Write(write);
@@ -117,7 +125,6 @@ namespace TestApp
         }
     }
     public class Meta{
-        public Version version;
-        public string url;
+        public int version;
     }
 }
