@@ -33,6 +33,7 @@
             this.lbl1 = new System.Windows.Forms.Label();
             this.versionlabel = new System.Windows.Forms.Label();
             this.serverversionlbl = new System.Windows.Forms.Label();
+            this.fireBaseStatusLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // progressBar2
@@ -66,26 +67,37 @@
             // versionlabel
             // 
             this.versionlabel.AutoSize = true;
-            this.versionlabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.versionlabel.Location = new System.Drawing.Point(12, 13);
+            this.versionlabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.versionlabel.Location = new System.Drawing.Point(17, 9);
             this.versionlabel.Name = "versionlabel";
-            this.versionlabel.Size = new System.Drawing.Size(101, 15);
+            this.versionlabel.Size = new System.Drawing.Size(133, 21);
             this.versionlabel.TabIndex = 3;
             this.versionlabel.Text = "Aktualna wersja: -";
             // 
             // serverversionlbl
             // 
             this.serverversionlbl.AutoSize = true;
-            this.serverversionlbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.serverversionlbl.Location = new System.Drawing.Point(12, 28);
+            this.serverversionlbl.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.serverversionlbl.Location = new System.Drawing.Point(17, 30);
             this.serverversionlbl.Name = "serverversionlbl";
-            this.serverversionlbl.Size = new System.Drawing.Size(117, 15);
+            this.serverversionlbl.Size = new System.Drawing.Size(157, 21);
             this.serverversionlbl.TabIndex = 4;
             this.serverversionlbl.Text = "Wersja na serwerze: -";
+            // 
+            // fireBaseStatusLabel
+            // 
+            this.fireBaseStatusLabel.AutoSize = true;
+            this.fireBaseStatusLabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.fireBaseStatusLabel.Location = new System.Drawing.Point(17, 51);
+            this.fireBaseStatusLabel.Name = "fireBaseStatusLabel";
+            this.fireBaseStatusLabel.Size = new System.Drawing.Size(126, 21);
+            this.fireBaseStatusLabel.TabIndex = 5;
+            this.fireBaseStatusLabel.Text = "Firebase status: -";
             // 
             // TestApp
             // 
             this.ClientSize = new System.Drawing.Size(854, 429);
+            this.Controls.Add(this.fireBaseStatusLabel);
             this.Controls.Add(this.serverversionlbl);
             this.Controls.Add(this.versionlabel);
             this.Controls.Add(this.lbl1);
@@ -104,6 +116,7 @@
         private System.Windows.Forms.Label lbl1;
         private System.Windows.Forms.Label versionlabel;
         private System.Windows.Forms.Label serverversionlbl;
+        private System.Windows.Forms.Label fireBaseStatusLabel;
     }
 }
 

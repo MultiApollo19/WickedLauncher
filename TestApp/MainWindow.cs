@@ -11,14 +11,27 @@ using System.Threading;
 using System.Net;
 using System.IO;
 using System.Windows.Forms;
+
+
 using Newtonsoft.Json;
 using WickedHamsters;
+using FireSharp.Config;
+using FireSharp.Interfaces;
+using FireSharp.Response;
 
 
 namespace TestApp
 {//HEHEHEHEHEHEHEHEHEHHEHEHEHE
     public partial class TestApp : Form
     {
+        IFirebaseConfig firebaseConfig = new FirebaseConfig
+        {
+            AuthSecret = "MLQzJXkF14h6Z9iE5QcXUVauik4rQRHf3uHby4eO",
+            BasePath = "https://wickedlauncher.firebaseio.com/"
+        };
+
+        IFirebaseClient firebaseClient;
+
         public TestApp()
         {
             InitializeComponent();
@@ -26,13 +39,27 @@ namespace TestApp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            firebaseClient = new FireSharp.FirebaseClient(firebaseConfig);
+            firebaseCheck(fireBaseStatusLabel);
         }
+        //Firebase
+        void firebaseCheck(Label firebaseStatus)
+        {
+            if (firebaseClient != null)
+            {
+                firebaseStatus.Text = "Firebase Status: connected";
+            }
+            else
+            {
+                firebaseStatus.Text = "Firebase Status: disconnected";
+            }
+        }
+        //Apka
         void CheckUpdate()
         {
             
             lbl1.Text = "Sprawdzam dostępność aktualizacji...";
-            string serverVersion = "https://doc-0c-5c-docs.googleusercontent.com/docs/securesc/nke845s47lsc0f9ldr2m9gapal47qm72/f8em3jk6bqf5cc310r3uvhfii1ppmcrv/1580497200000/11875819559820862250/11875819559820862250/1mUaw4m5ViMymKZn0HPlw9CxFRhCH31hP?e=download&gd=true&access_token=ya29.Il-8BzgEcMwRg-sqYFAYfuwvEpxD8i9WrESqAi0MIRs0NPHtXHIzxY3YDv610oB4dw2_jJ1etb8rdK5dYwUrpfCwxuCDFNcXGq3O8W8Z4OvIuBef-Cx4yY4nTNlDqkdLJg";
+            string serverVersion = "http://wickedlauncher.5v.pl/launcher/meta.dbg";
             string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             //current
             string currentRead = File.ReadAllText(currentVersion);
