@@ -24,6 +24,8 @@ namespace TestApp
 {
     public partial class TestApp : Form
     {
+        //public
+        Version firebaseVersion;
         IFirebaseConfig firebaseConfig = new FirebaseConfig
         {
             AuthSecret = "MLQzJXkF14h6Z9iE5QcXUVauik4rQRHf3uHby4eO",
@@ -37,7 +39,7 @@ namespace TestApp
             //Startup
             InitializeComponent();
             //debug
-            MakeNewJson();
+            //MakeNewJson();
 
             //firebase
             firebaseClient = new FireSharp.FirebaseClient(firebaseConfig);
@@ -63,20 +65,32 @@ namespace TestApp
         }
         async void firebaseGetVersion()
         {
-            FirebaseResponse firebaseResponse = await firebaseClient.GetAsync("app/version");
-            string firebaseVersionString = firebaseResponse.ResultAs<string>();
-            Console.WriteLine(firebaseVersionString);
-            int firebaseVersionInt = WickedHamsters.Utils.StringToInt(firebaseVersionString);
-            Console.WriteLine("Wersja int: " + firebaseVersionInt);
-            double firebaseVersionDouble = Convert.ToDouble(firebaseVersionString);
-            Console.WriteLine("Wersja double: " + firebaseVersionDouble);
+            FirebaseResponse firebaseResponse = await firebaseClient.GetAsync("app");
+            FirebaseLauncherData launcherData = firebaseResponse.ResultAs<FirebaseLauncherData>();
+            int firebaseMajor = Utils.StringToInt(launcherData.major);
+            int firebaseMinor = Utils.StringToInt(launcherData.minor);
+            int firebasePatch = Utils.StringToInt(launcherData.patch);
+            Version firebaseVersione = new Version(firebaseMajor, firebaseMinor, firebasePatch,0);
+            while (firebaseVersione == null)
+            {
+                Console.WriteLine("Czekano!");
+                await Task.Delay(25);
+            }
+            firebaseVersion = firebaseVersione;
+            while (firebaseVersion == null)
+            {
+                Console.WriteLine("Czekano!");
+                await Task.Delay(25);
+            }
+
         }
         //Apka
         void CheckUpdate()
         {
-            firebaseGetVersion();
+            
             lbl1.Text = "Sprawdzam dostępność aktualizacji...";
-            string serverVersion = "http://wickedlauncher.5v.pl/launcher/meta.dbg";
+            firebaseGetVersion();
+
             string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             //current
             string currentRead = File.ReadAllText(currentVersion);
@@ -84,13 +98,9 @@ namespace TestApp
             string localVersion = deserializedCurrentMeta.version.ToString();
             versionlabel.Text = "Aktualna wersja: " + localVersion;
             //server
+            serverversionlbl.Text = "Wersja na serwerze: " + firebaseVersion;
 
-            string serverRead = WickedHamsters.Utils.GetTextFile(serverVersion);
-            Meta deserializedServerMeta = JsonConvert.DeserializeObject<Meta>(serverRead);
-            string serverVersionn = deserializedServerMeta.version.ToString();
-            serverversionlbl.Text = "Wersja na serwerze: " + serverVersionn;
-
-            if (deserializedServerMeta.version.Equals(deserializedCurrentMeta.version))
+            if (firebaseVersion.Equals(deserializedCurrentMeta.version))
             {
                 return;
             }
@@ -107,7 +117,7 @@ namespace TestApp
         {
             string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             Meta meta = new Meta();
-            meta.version = 0100;
+            meta.version = new Version(0, 1, 0,0);
             string write = JsonConvert.SerializeObject(meta);
             StreamWriter file = File.CreateText(currentVersion);
             file.Write(write);
@@ -125,6 +135,13 @@ namespace TestApp
         }
     }
     public class Meta{
-        public int version;
+        public Version version;
+    }
+    public class FirebaseLauncherData
+    {
+        public string major;
+        public string minor;
+        public string patch;
+        public string url;
     }
 }
