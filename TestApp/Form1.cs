@@ -35,12 +35,14 @@ namespace TestApp
         public TestApp()
         {
             InitializeComponent();
+            firebaseClient = new FireSharp.FirebaseClient(firebaseConfig);
+            firebaseCheck(fireBaseStatusLabel);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            firebaseClient = new FireSharp.FirebaseClient(firebaseConfig);
-            firebaseCheck(fireBaseStatusLabel);
+            
+            //firebaseCheck(fireBaseStatusLabel);
         }
         //Firebase
         void firebaseCheck(Label firebaseStatus)
