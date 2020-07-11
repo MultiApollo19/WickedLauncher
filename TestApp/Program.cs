@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace TestApp
+namespace GameLauncher
 {
     static class Program
     {
@@ -16,7 +16,7 @@ namespace TestApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TestApp());
+            Application.Run(new MainWindow());
         }
     }
 }

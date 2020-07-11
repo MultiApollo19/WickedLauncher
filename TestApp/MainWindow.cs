@@ -20,12 +20,15 @@ using FireSharp.Interfaces;
 using FireSharp.Response;
 
 
-namespace TestApp
+namespace GameLauncher
 {
-    public partial class TestApp : Form
+    public partial class MainWindow : Form
     {
         //public
         Version firebaseVersion;
+        bool isEndVersionDownload;
+
+
         IFirebaseConfig firebaseConfig = new FirebaseConfig
         {
             AuthSecret = "MLQzJXkF14h6Z9iE5QcXUVauik4rQRHf3uHby4eO",
@@ -34,7 +37,7 @@ namespace TestApp
 
         IFirebaseClient firebaseClient;
 
-        public TestApp()
+        public MainWindow()
         {
             //Startup
             InitializeComponent();
@@ -71,25 +74,14 @@ namespace TestApp
             int firebaseMinor = Utils.StringToInt(launcherData.minor);
             int firebasePatch = Utils.StringToInt(launcherData.patch);
             Version firebaseVersione = new Version(firebaseMajor, firebaseMinor, firebasePatch,0);
-            while (firebaseVersione == null)
-            {
-                Console.WriteLine("Czekano!");
-                await Task.Delay(25);
-            }
             firebaseVersion = firebaseVersione;
-            while (firebaseVersion == null)
-            {
-                Console.WriteLine("Czekano!");
-                await Task.Delay(25);
-            }
-
+            Console.WriteLine(firebaseVersion);
+            isEndVersionDownload = true;
+            Console.WriteLine(isEndVersionDownload);
         }
         //Apka
         void CheckUpdate()
         {
-            
-            lbl1.Text = "Sprawdzam dostępność aktualizacji...";
-            firebaseGetVersion();
 
             string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             //current
@@ -102,36 +94,39 @@ namespace TestApp
 
             if (firebaseVersion.Equals(deserializedCurrentMeta.version))
             {
-                return;
+                lbl1.Text = "Posiadasz najnowszą wersję!";
             }
             else
             {
                 lbl1.Text = "Znaleziono aktualizację!";
             }
-
-
-
-
-        }
-        void MakeNewJson()
-        {
-            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
-            Meta meta = new Meta();
-            meta.version = new Version(0, 1, 0,0);
-            string write = JsonConvert.SerializeObject(meta);
-            StreamWriter file = File.CreateText(currentVersion);
-            file.Write(write);
-            file.Close();
         }
 
         private void startBtn_Click(object sender, EventArgs e)
         {
+            lbl1.Text = "Sprawdzam dostępność aktualizacji...";
+            Thread t1 = new Thread(new ThreadStart(firebaseGetVersion));
+            t1.Start();
+            Thread.Sleep(2000);
+
             CheckUpdate();
         }
 
-        private void TestApp_Load(object sender, EventArgs e)
+        private void MainWindow_Load(object sender, EventArgs e)
         {
 
+        }
+
+        //Debug
+        void MakeNewJson()
+        {
+            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
+            Meta meta = new Meta();
+            meta.version = new Version(0, 1, 0, 0);
+            string write = JsonConvert.SerializeObject(meta);
+            StreamWriter file = File.CreateText(currentVersion);
+            file.Write(write);
+            file.Close();
         }
     }
     public class Meta{

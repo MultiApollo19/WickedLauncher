@@ -1,6 +1,6 @@
-﻿namespace TestApp
+﻿namespace GameLauncher
 {
-    partial class TestApp
+    partial class MainWindow
     {
         /// <summary>
         /// Wymagana zmienna projektanta.
@@ -57,7 +57,7 @@
             // 
             this.lbl1.AutoSize = true;
             this.lbl1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lbl1.Location = new System.Drawing.Point(421, 366);
+            this.lbl1.Location = new System.Drawing.Point(342, 366);
             this.lbl1.Name = "lbl1";
             this.lbl1.Size = new System.Drawing.Size(64, 21);
             this.lbl1.TabIndex = 2;
@@ -94,7 +94,7 @@
             this.fireBaseStatusLabel.TabIndex = 5;
             this.fireBaseStatusLabel.Text = "Firebase status: -";
             // 
-            // TestApp
+            // MainWindow
             // 
             this.ClientSize = new System.Drawing.Size(854, 429);
             this.Controls.Add(this.fireBaseStatusLabel);
@@ -103,8 +103,8 @@
             this.Controls.Add(this.lbl1);
             this.Controls.Add(this.startBtn);
             this.Controls.Add(this.progressBar2);
-            this.Name = "TestApp";
-            this.Load += new System.EventHandler(this.TestApp_Load);
+            this.Name = "MainWindow";
+            this.Load += new System.EventHandler(this.MainWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
