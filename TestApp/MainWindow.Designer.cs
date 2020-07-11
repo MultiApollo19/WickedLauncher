@@ -28,20 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.progressBar2 = new System.Windows.Forms.ProgressBar();
             this.startBtn = new System.Windows.Forms.Button();
             this.lbl1 = new System.Windows.Forms.Label();
             this.versionlabel = new System.Windows.Forms.Label();
             this.serverversionlbl = new System.Windows.Forms.Label();
             this.fireBaseStatusLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // progressBar2
-            // 
-            this.progressBar2.Location = new System.Drawing.Point(163, 390);
-            this.progressBar2.Name = "progressBar2";
-            this.progressBar2.Size = new System.Drawing.Size(679, 27);
-            this.progressBar2.TabIndex = 0;
             // 
             // startBtn
             // 
@@ -57,7 +49,7 @@
             // 
             this.lbl1.AutoSize = true;
             this.lbl1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lbl1.Location = new System.Drawing.Point(342, 366);
+            this.lbl1.Location = new System.Drawing.Point(204, 391);
             this.lbl1.Name = "lbl1";
             this.lbl1.Size = new System.Drawing.Size(64, 21);
             this.lbl1.TabIndex = 2;
@@ -102,7 +94,6 @@
             this.Controls.Add(this.versionlabel);
             this.Controls.Add(this.lbl1);
             this.Controls.Add(this.startBtn);
-            this.Controls.Add(this.progressBar2);
             this.Name = "MainWindow";
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.ResumeLayout(false);
@@ -111,7 +102,6 @@
         }
 
         #endregion
-        private System.Windows.Forms.ProgressBar progressBar2;
         private System.Windows.Forms.Button startBtn;
         private System.Windows.Forms.Label lbl1;
         private System.Windows.Forms.Label versionlabel;
