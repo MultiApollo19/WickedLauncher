@@ -88,6 +88,7 @@
             // 
             // MainWindow
             // 
+            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(854, 429);
             this.Controls.Add(this.fireBaseStatusLabel);
             this.Controls.Add(this.serverversionlbl);
