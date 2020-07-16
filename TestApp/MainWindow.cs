@@ -1,88 +1,231 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Net;
 using System.IO;
 using System.Windows.Forms;
+using System.Net;
+using System.Diagnostics;
+
+
 using Newtonsoft.Json;
+using System.IO.Compression;
+using CG.Web.MegaApiClient;
 using WickedHamsters;
+using FireSharp.Config;
+using FireSharp.Interfaces;
+using FireSharp.Response;
 
 
-namespace TestApp
-{//HEHEHEHEHEHEHEHEHEHHEHEHEHE
-    public partial class TestApp : Form
+namespace GameLauncher
+{
+    public partial class MainWindow : Form
     {
-        public TestApp()
+        //PUBLIC
+        //firebase
+        Version firebaseVersion;
+        Uri launcherUpdateURI;
+        bool isEndVersionDownload;
+        //version
+        int fireMajor;
+        int fireMinor;
+        int firePatch;
+
+        //app
+        public string metaURL = Directory.GetCurrentDirectory() + "\\meta.wgl";
+        public string launcherupdateURL = Directory.GetCurrentDirectory() + "\\launcherUpdate.zip";
+        public Meta deserializedLocal;
+
+
+        IFirebaseConfig firebaseConfig = new FirebaseConfig
         {
+            AuthSecret = "MLQzJXkF14h6Z9iE5QcXUVauik4rQRHf3uHby4eO",
+            BasePath = "https://wickedlauncher.firebaseio.com/"
+        };
+
+        IFirebaseClient firebaseClient;
+
+        public MainWindow(bool afterUpdate)
+        {
+            //Startup
             InitializeComponent();
+            metaSetup();
+            if (afterUpdate)
+            {
+                cleanUpLauncher();            
+            }
+            
+            //debug
+            //MakeNewJson();
+
+            //firebase
+            firebaseClient = new FireSharp.FirebaseClient(firebaseConfig);
+            firebaseCheck(fireBaseStatusLabel);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             
+            //firebaseCheck(fireBaseStatusLabel);
         }
-        void CheckUpdate()
+        //Firebase
+        void firebaseCheck(Label firebaseStatus)
         {
-            
-            lbl1.Text = "Sprawdzam dostępność aktualizacji...";
-            string serverVersion = "https://doc-0c-5c-docs.googleusercontent.com/docs/securesc/nke845s47lsc0f9ldr2m9gapal47qm72/f8em3jk6bqf5cc310r3uvhfii1ppmcrv/1580497200000/11875819559820862250/11875819559820862250/1mUaw4m5ViMymKZn0HPlw9CxFRhCH31hP?e=download&gd=true&access_token=ya29.Il-8BzgEcMwRg-sqYFAYfuwvEpxD8i9WrESqAi0MIRs0NPHtXHIzxY3YDv610oB4dw2_jJ1etb8rdK5dYwUrpfCwxuCDFNcXGq3O8W8Z4OvIuBef-Cx4yY4nTNlDqkdLJg";
-            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
-            //current
-            string currentRead = File.ReadAllText(currentVersion);
-            Meta deserializedCurrentMeta = JsonConvert.DeserializeObject<Meta>(currentRead);
-            string localVersion = deserializedCurrentMeta.version.ToString();
-            versionlabel.Text = "Aktualna wersja: " + localVersion;
-            //server
-
-            string serverRead = WickedHamsters.Utils.GetTextFile(serverVersion);
-            Meta deserializedServerMeta = JsonConvert.DeserializeObject<Meta>(serverRead);
-            string serverVersionn = deserializedServerMeta.version.ToString();
-            serverversionlbl.Text = "Wersja na serwerze: " + serverVersionn;
-
-            if (deserializedServerMeta.version.Equals(deserializedCurrentMeta.version))
+            if (firebaseClient != null)
+            {
+                firebaseStatus.Text = "Firebase status: connected";
+            }
+            else
+            {
+                firebaseStatus.Text = "Firebase status: disconnected";
+            }
+        }
+        async void firebaseGetVersion()
+        {
+            FirebaseResponse firebaseResponse = await firebaseClient.GetAsync("app");
+            FirebaseLauncherData launcherData = firebaseResponse.ResultAs<FirebaseLauncherData>();
+            fireMajor = Utils.StringToInt(launcherData.major);
+            fireMinor = Utils.StringToInt(launcherData.minor);
+            firePatch = Utils.StringToInt(launcherData.patch);
+            Uri.TryCreate(launcherData.url, UriKind.Absolute, out launcherUpdateURI);         
+            Version firebaseVersione = new Version(fireMajor, fireMinor, firePatch,0);
+            firebaseVersion = firebaseVersione;
+            Console.WriteLine(firebaseVersion);
+            isEndVersionDownload = true;
+            Console.WriteLine(isEndVersionDownload);
+        }
+        //APP
+        //checkMetaExist
+        void metaSetup()
+        {
+            if (File.Exists(metaURL))
             {
                 return;
             }
             else
             {
-                lbl1.Text = "Znaleziono aktualizację!";
+                MakeNewJson();
             }
+     
+        }
+
+        void CheckUpdate()
+        {
+            //current
+            string currentRead = File.ReadAllText(metaURL);
+            deserializedLocal = JsonConvert.DeserializeObject<Meta>(currentRead);
+            string localVersion = deserializedLocal.version.ToString();
+            versionlabel.Text = "Aktualna wersja: " + localVersion;
+            //server
+            serverversionlbl.Text = "Wersja na serwerze: " + firebaseVersion;
+
+            if (firebaseVersion.Equals(deserializedLocal.version))
+            {
+                lbl1.Text = "Posiadasz najnowszą wersję!";
+            }
+            else
+            {
+                lbl1.Text = "Znaleziono aktualizację!";
+                downloadUpdate();
+            }
+        }
+        async void downloadUpdate()
+        {
+            var client = new MegaApiClient();
+            client.LoginAnonymous();
+
+            INodeInfo node = client.GetNodeFromLink(launcherUpdateURI);
+
+            IProgress<double> progressHandler = new Progress<double>(x => lbl1.Text = "Pobieram: " + x + "%");
+            await client.DownloadFileAsync(launcherUpdateURI, node.Name, progressHandler);
+
+            client.Logout();
+            installUpdate();
+        }
+        void installUpdate()
+        {
+            string[] plikiLocal = Directory.GetFiles(Directory.GetCurrentDirectory());
+            
+            for (int i = 0; i < plikiLocal.Length; i++)
+            {
+                if(plikiLocal[i] == metaURL || plikiLocal[i] == launcherupdateURL)
+                {
+                    continue;
+                }
+                else
+                {
+                    File.Move(plikiLocal[i], plikiLocal[i] + ".old");
+                }
+            }
+            ZipFile.ExtractToDirectory(launcherupdateURL, Directory.GetCurrentDirectory());
+            
 
 
+            deserializedLocal.version = new Version(fireMajor,fireMinor,firePatch,0);
+            string newMeta = JsonConvert.SerializeObject(deserializedLocal);
+            Stream stream = File.Open(metaURL, FileMode.OpenOrCreate);
+            StreamWriter file = new StreamWriter(stream);
+            file.Write(newMeta);
+            file.Close();
 
+            //cmdReboot
+            Process cmd = new Process();
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.Start();
+
+            cmd.StandardInput.WriteLine("start GameLauncher.exe -true");
+            cmd.StandardInput.Flush();
+            
+            cmd.StandardInput.Close();
+            cmd.WaitForExit();
+            Application.Exit();
 
         }
-        void MakeNewJson()
+        void cleanUpLauncher()
         {
-            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
-            Meta meta = new Meta();
-            meta.version = new Version("0.1.0.0");
-            meta.url = "https://doc-14-5c-docs.googleusercontent.com/docs/securesc/nke845s47lsc0f9ldr2m9gapal47qm72/65rvtprl8nsrdqo6dfsvj16fhgtcitc2/1580496300000/11875819559820862250/11875819559820862250/1SWwA0cFmE5q97ky2q2EUroe8dzlG3ukE?e=download&gd=true&access_token=ya29.Il-8BzgEcMwRg-sqYFAYfuwvEpxD8i9WrESqAi0MIRs0NPHtXHIzxY3YDv610oB4dw2_jJ1etb8rdK5dYwUrpfCwxuCDFNcXGq3O8W8Z4OvIuBef-Cx4yY4nTNlDqkdLJg";
-            string write = JsonConvert.SerializeObject(meta);
-            StreamWriter file = File.CreateText(currentVersion);
-            file.Write(write);
-            file.Close();
+            string[] plikiOld = Directory.GetFiles(Directory.GetCurrentDirectory() + ".old");
+            for (int i = 0; i < plikiOld.Length; i++)
+            {
+                File.Delete(plikiOld[i]);
+            }
         }
 
         private void startBtn_Click(object sender, EventArgs e)
         {
+            lbl1.Text = "Sprawdzam dostępność aktualizacji...";
+            Thread t1 = new Thread(new ThreadStart(firebaseGetVersion));
+            t1.Start();
+            Thread.Sleep(2000);
+
             CheckUpdate();
         }
 
-        private void TestApp_Load(object sender, EventArgs e)
+        private void MainWindow_Load(object sender, EventArgs e)
         {
 
+        }
+
+        //Debug
+        void MakeNewJson()
+        {
+            Meta meta = new Meta();
+            meta.version = new Version(0, 1, 0, 0);
+            string write = JsonConvert.SerializeObject(meta);
+            StreamWriter file = File.CreateText(metaURL);
+            file.Write(write);
+            file.Close();
         }
     }
     public class Meta{
         public Version version;
+    }
+    public class FirebaseLauncherData
+    {
+        public string major;
+        public string minor;
+        public string patch;
         public string url;
     }
 }

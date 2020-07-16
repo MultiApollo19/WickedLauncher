@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLauncher", "TestApp\GameLauncher.csproj", "{71F9A76C-19D2-46F7-9CD1-0670ABC4E5BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedHamsters", "WickedHamsters\WickedHamsters.csproj", "{B93066B0-1BA7-4437-97DB-816C5DEC68C6}"
 EndProject
