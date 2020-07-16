@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Net;
 using System.IO;
 using System.Windows.Forms;
+using System.Net;
+using System.Diagnostics;
 
 
 using Newtonsoft.Json;
@@ -29,9 +22,17 @@ namespace GameLauncher
         //PUBLIC
         //firebase
         Version firebaseVersion;
-        Uri updateURL;
+        Uri launcherUpdateURI;
         bool isEndVersionDownload;
+        //version
+        int fireMajor;
+        int fireMinor;
+        int firePatch;
 
+        //app
+        public string metaURL = Directory.GetCurrentDirectory() + "\\meta.wgl";
+        public string launcherupdateURL = Directory.GetCurrentDirectory() + "\\launcherUpdate.zip";
+        public Meta deserializedLocal;
 
 
         IFirebaseConfig firebaseConfig = new FirebaseConfig
@@ -42,10 +43,16 @@ namespace GameLauncher
 
         IFirebaseClient firebaseClient;
 
-        public MainWindow()
+        public MainWindow(bool afterUpdate)
         {
             //Startup
             InitializeComponent();
+            metaSetup();
+            if (afterUpdate)
+            {
+                cleanUpLauncher();            
+            }
+            
             //debug
             //MakeNewJson();
 
@@ -75,30 +82,42 @@ namespace GameLauncher
         {
             FirebaseResponse firebaseResponse = await firebaseClient.GetAsync("app");
             FirebaseLauncherData launcherData = firebaseResponse.ResultAs<FirebaseLauncherData>();
-            int firebaseMajor = Utils.StringToInt(launcherData.major);
-            int firebaseMinor = Utils.StringToInt(launcherData.minor);
-            int firebasePatch = Utils.StringToInt(launcherData.patch);
-            Uri.TryCreate(launcherData.url, UriKind.Absolute, out updateURL);         
-            Version firebaseVersione = new Version(firebaseMajor, firebaseMinor, firebasePatch,0);
+            fireMajor = Utils.StringToInt(launcherData.major);
+            fireMinor = Utils.StringToInt(launcherData.minor);
+            firePatch = Utils.StringToInt(launcherData.patch);
+            Uri.TryCreate(launcherData.url, UriKind.Absolute, out launcherUpdateURI);         
+            Version firebaseVersione = new Version(fireMajor, fireMinor, firePatch,0);
             firebaseVersion = firebaseVersione;
             Console.WriteLine(firebaseVersion);
             isEndVersionDownload = true;
             Console.WriteLine(isEndVersionDownload);
         }
-        //Apka
+        //APP
+        //checkMetaExist
+        void metaSetup()
+        {
+            if (File.Exists(metaURL))
+            {
+                return;
+            }
+            else
+            {
+                MakeNewJson();
+            }
+     
+        }
+
         void CheckUpdate()
         {
-
-            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             //current
-            string currentRead = File.ReadAllText(currentVersion);
-            Meta deserializedCurrentMeta = JsonConvert.DeserializeObject<Meta>(currentRead);
-            string localVersion = deserializedCurrentMeta.version.ToString();
+            string currentRead = File.ReadAllText(metaURL);
+            deserializedLocal = JsonConvert.DeserializeObject<Meta>(currentRead);
+            string localVersion = deserializedLocal.version.ToString();
             versionlabel.Text = "Aktualna wersja: " + localVersion;
             //server
             serverversionlbl.Text = "Wersja na serwerze: " + firebaseVersion;
 
-            if (firebaseVersion.Equals(deserializedCurrentMeta.version))
+            if (firebaseVersion.Equals(deserializedLocal.version))
             {
                 lbl1.Text = "Posiadasz najnowszą wersję!";
             }
@@ -113,18 +132,65 @@ namespace GameLauncher
             var client = new MegaApiClient();
             client.LoginAnonymous();
 
-            INodeInfo node = client.GetNodeFromLink(updateURL);
+            INodeInfo node = client.GetNodeFromLink(launcherUpdateURI);
 
             IProgress<double> progressHandler = new Progress<double>(x => lbl1.Text = "Pobieram: " + x + "%");
-            await client.DownloadFileAsync(updateURL, node.Name, progressHandler);
+            await client.DownloadFileAsync(launcherUpdateURI, node.Name, progressHandler);
 
             client.Logout();
+            installUpdate();
         }
         void installUpdate()
         {
+            string[] plikiLocal = Directory.GetFiles(Directory.GetCurrentDirectory());
+            
+            for (int i = 0; i < plikiLocal.Length; i++)
+            {
+                if(plikiLocal[i] == metaURL || plikiLocal[i] == launcherupdateURL)
+                {
+                    continue;
+                }
+                else
+                {
+                    File.Move(plikiLocal[i], plikiLocal[i] + ".old");
+                }
+            }
+            ZipFile.ExtractToDirectory(launcherupdateURL, Directory.GetCurrentDirectory());
+            
+
+
+            deserializedLocal.version = new Version(fireMajor,fireMinor,firePatch,0);
+            string newMeta = JsonConvert.SerializeObject(deserializedLocal);
+            Stream stream = File.Open(metaURL, FileMode.OpenOrCreate);
+            StreamWriter file = new StreamWriter(stream);
+            file.Write(newMeta);
+            file.Close();
+
+            //cmdReboot
+            Process cmd = new Process();
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.Start();
+
+            cmd.StandardInput.WriteLine("start GameLauncher.exe -true");
+            cmd.StandardInput.Flush();
+            
+            cmd.StandardInput.Close();
+            cmd.WaitForExit();
+            Application.Exit();
 
         }
-
+        void cleanUpLauncher()
+        {
+            string[] plikiOld = Directory.GetFiles(Directory.GetCurrentDirectory() + ".old");
+            for (int i = 0; i < plikiOld.Length; i++)
+            {
+                File.Delete(plikiOld[i]);
+            }
+        }
 
         private void startBtn_Click(object sender, EventArgs e)
         {
@@ -144,11 +210,10 @@ namespace GameLauncher
         //Debug
         void MakeNewJson()
         {
-            string currentVersion = Directory.GetCurrentDirectory() + "/meta.dbg";
             Meta meta = new Meta();
             meta.version = new Version(0, 1, 0, 0);
             string write = JsonConvert.SerializeObject(meta);
-            StreamWriter file = File.CreateText(currentVersion);
+            StreamWriter file = File.CreateText(metaURL);
             file.Write(write);
             file.Close();
         }

@@ -94,7 +94,9 @@
             this.Controls.Add(this.versionlabel);
             this.Controls.Add(this.lbl1);
             this.Controls.Add(this.startBtn);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.Name = "MainWindow";
+            this.Text = "Game Launcher Beta";
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

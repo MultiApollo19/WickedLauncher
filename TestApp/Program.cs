@@ -14,9 +14,16 @@ namespace GameLauncher
         [STAThread]
         static void Main()
         {
+            string[] args = Environment.GetCommandLineArgs();
+            bool afterLauncherUpdate = false;
+            if (args[0].Equals("-true"))
+            {
+                afterLauncherUpdate = true;
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+            Application.Run(new MainWindow(afterLauncherUpdate));
+            
         }
     }
 }
