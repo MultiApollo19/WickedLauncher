@@ -7,13 +7,14 @@ using System.Diagnostics;
 
 
 using Newtonsoft.Json;
-using System.IO.Compression;
+using Ionic.Zip;
 using CG.Web.MegaApiClient;
 using WickedHamsters;
 using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
-
+using YamlDotNet.Serialization;
+using YamlDotNet.Helpers;
 
 namespace GameLauncher
 {
@@ -32,6 +33,7 @@ namespace GameLauncher
         //app
         public string metaURL = Directory.GetCurrentDirectory() + "\\meta.wgl";
         public string launcherupdateURL = Directory.GetCurrentDirectory() + "\\launcherUpdate.zip";
+        public string afterUpdateIndicatorURL = Directory.GetCurrentDirectory() + "\\aaaa.tmp";
         public Meta deserializedLocal;
 
 
@@ -43,16 +45,12 @@ namespace GameLauncher
 
         IFirebaseClient firebaseClient;
 
-        public MainWindow(bool afterUpdate)
+        public MainWindow()
         {
             //Startup
             InitializeComponent();
             metaSetup();
-            if (afterUpdate)
-            {
-                cleanUpLauncher();            
-            }
-            
+            checkAfterUpdate();            
             //debug
             //MakeNewJson();
 
@@ -107,6 +105,25 @@ namespace GameLauncher
      
         }
 
+        void cleanUpLauncher()
+        {
+            
+            string[] plikiOld = Directory.GetFiles(Directory.GetCurrentDirectory(),"*.old");
+            for (int i = 0; i < plikiOld.Length; i++)
+            {
+                File.Delete(plikiOld[i]);
+            }
+            File.Delete(afterUpdateIndicatorURL);
+            File.Delete(launcherupdateURL);
+        }
+        void checkAfterUpdate()
+        {
+            if (File.Exists(afterUpdateIndicatorURL))
+            {
+                cleanUpLauncher();
+            }
+        }
+
         void CheckUpdate()
         {
             //current
@@ -155,8 +172,11 @@ namespace GameLauncher
                     File.Move(plikiLocal[i], plikiLocal[i] + ".old");
                 }
             }
-            ZipFile.ExtractToDirectory(launcherupdateURL, Directory.GetCurrentDirectory());
-            
+            using (ZipFile zip = new ZipFile(launcherupdateURL))
+            {
+                zip.ExtractAll(Directory.GetCurrentDirectory());
+                zip.Dispose();
+            }
 
 
             deserializedLocal.version = new Version(fireMajor,fireMinor,firePatch,0);
@@ -166,31 +186,11 @@ namespace GameLauncher
             file.Write(newMeta);
             file.Close();
 
-            //cmdReboot
-            Process cmd = new Process();
-            cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.RedirectStandardOutput = true;
-            cmd.StartInfo.CreateNoWindow = true;
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.Start();
-
-            cmd.StandardInput.WriteLine("start GameLauncher.exe -true");
-            cmd.StandardInput.Flush();
-            
-            cmd.StandardInput.Close();
-            cmd.WaitForExit();
-            Application.Exit();
+            File.Create(afterUpdateIndicatorURL);
+            Application.Restart();
 
         }
-        void cleanUpLauncher()
-        {
-            string[] plikiOld = Directory.GetFiles(Directory.GetCurrentDirectory() + ".old");
-            for (int i = 0; i < plikiOld.Length; i++)
-            {
-                File.Delete(plikiOld[i]);
-            }
-        }
+
 
         private void startBtn_Click(object sender, EventArgs e)
         {
@@ -217,6 +217,26 @@ namespace GameLauncher
             file.Write(write);
             file.Close();
         }
+        //yaml
+        void MakeDebugYaml() {
+            gameMeta gameMeta = new gameMeta();
+            gameMeta.id = 0;
+            gameMeta.name = "Example game name";
+            gameMeta.logoUrl = "logo URL";
+            gameMeta.backgroundUrl = "Backgroud URL";
+            gameMeta.developer = "Example developer";
+
+
+
+            var serializer = new SerializerBuilder().Build();
+            var yaml = serializer.Serialize(gameMeta);
+            Console.WriteLine(yaml);
+        }
+
+        private void debugButton_Click(object sender, EventArgs e)
+        {
+            MakeDebugYaml();
+        }
     }
     public class Meta{
         public Version version;
@@ -227,5 +247,14 @@ namespace GameLauncher
         public string minor;
         public string patch;
         public string url;
+    }
+    public class gameMeta
+    {
+        public int id;
+        public string name;
+        public string developer;
+        public string logoUrl;
+        public string backgroundUrl;
+
     }
 }

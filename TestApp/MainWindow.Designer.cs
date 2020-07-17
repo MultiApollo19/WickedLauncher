@@ -33,15 +33,16 @@
             this.versionlabel = new System.Windows.Forms.Label();
             this.serverversionlbl = new System.Windows.Forms.Label();
             this.fireBaseStatusLabel = new System.Windows.Forms.Label();
+            this.debugButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // startBtn
             // 
             this.startBtn.Location = new System.Drawing.Point(12, 390);
             this.startBtn.Name = "startBtn";
-            this.startBtn.Size = new System.Drawing.Size(131, 27);
+            this.startBtn.Size = new System.Drawing.Size(218, 27);
             this.startBtn.TabIndex = 1;
-            this.startBtn.Text = "Sprawdz aktualizacje";
+            this.startBtn.Text = "Sprawdz dostępność aktualizacji";
             this.startBtn.UseVisualStyleBackColor = true;
             this.startBtn.Click += new System.EventHandler(this.startBtn_Click);
             // 
@@ -49,7 +50,7 @@
             // 
             this.lbl1.AutoSize = true;
             this.lbl1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lbl1.Location = new System.Drawing.Point(204, 391);
+            this.lbl1.Location = new System.Drawing.Point(483, 391);
             this.lbl1.Name = "lbl1";
             this.lbl1.Size = new System.Drawing.Size(64, 21);
             this.lbl1.TabIndex = 2;
@@ -86,10 +87,21 @@
             this.fireBaseStatusLabel.TabIndex = 5;
             this.fireBaseStatusLabel.Text = "Firebase status: -";
             // 
+            // debugButton
+            // 
+            this.debugButton.Location = new System.Drawing.Point(12, 358);
+            this.debugButton.Name = "debugButton";
+            this.debugButton.Size = new System.Drawing.Size(131, 26);
+            this.debugButton.TabIndex = 6;
+            this.debugButton.Text = "Debug";
+            this.debugButton.UseVisualStyleBackColor = true;
+            this.debugButton.Click += new System.EventHandler(this.debugButton_Click);
+            // 
             // MainWindow
             // 
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(854, 429);
+            this.Controls.Add(this.debugButton);
             this.Controls.Add(this.fireBaseStatusLabel);
             this.Controls.Add(this.serverversionlbl);
             this.Controls.Add(this.versionlabel);
@@ -110,6 +122,7 @@
         private System.Windows.Forms.Label versionlabel;
         private System.Windows.Forms.Label serverversionlbl;
         private System.Windows.Forms.Label fireBaseStatusLabel;
+        private System.Windows.Forms.Button debugButton;
     }
 }
 
