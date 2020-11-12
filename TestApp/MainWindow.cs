@@ -146,13 +146,19 @@ namespace GameLauncher
         }
         async void downloadUpdate()
         {
+            lbl1.Visible = false;
+            pobieramBar.Visible = true;
+            pobieramLabl.Visible = true;
             var client = new MegaApiClient();
             client.LoginAnonymous();
 
             INodeInfo node = client.GetNodeFromLink(launcherUpdateURI);
 
-            IProgress<double> progressHandler = new Progress<double>(x => lbl1.Text = "Pobieram: " + x + "%");
-            await client.DownloadFileAsync(launcherUpdateURI, node.Name, progressHandler);
+            //Coś tu nie bangla :(
+
+            //IProgress<double> progressHandler = new Progress<double>(x => pobieramBar.Value = x);
+
+            //await client.DownloadFileAsync(launcherUpdateURI, node.Name, progressHandler);
 
             client.Logout();
             installUpdate();

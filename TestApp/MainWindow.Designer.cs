@@ -34,6 +34,8 @@
             this.serverversionlbl = new System.Windows.Forms.Label();
             this.fireBaseStatusLabel = new System.Windows.Forms.Label();
             this.debugButton = new System.Windows.Forms.Button();
+            this.pobieramBar = new System.Windows.Forms.ProgressBar();
+            this.pobieramLabl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // startBtn
@@ -97,10 +99,30 @@
             this.debugButton.UseVisualStyleBackColor = true;
             this.debugButton.Click += new System.EventHandler(this.debugButton_Click);
             // 
+            // pobieramBar
+            // 
+            this.pobieramBar.Location = new System.Drawing.Point(251, 394);
+            this.pobieramBar.Name = "pobieramBar";
+            this.pobieramBar.Size = new System.Drawing.Size(569, 23);
+            this.pobieramBar.TabIndex = 7;
+            this.pobieramBar.Visible = false;
+            // 
+            // pobieramLabl
+            // 
+            this.pobieramLabl.AutoSize = true;
+            this.pobieramLabl.Location = new System.Drawing.Point(502, 375);
+            this.pobieramLabl.Name = "pobieramLabl";
+            this.pobieramLabl.Size = new System.Drawing.Size(67, 16);
+            this.pobieramLabl.TabIndex = 8;
+            this.pobieramLabl.Text = "Pobieram";
+            this.pobieramLabl.Visible = false;
+            // 
             // MainWindow
             // 
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(854, 429);
+            this.Controls.Add(this.pobieramLabl);
+            this.Controls.Add(this.pobieramBar);
             this.Controls.Add(this.debugButton);
             this.Controls.Add(this.fireBaseStatusLabel);
             this.Controls.Add(this.serverversionlbl);
@@ -123,6 +145,8 @@
         private System.Windows.Forms.Label serverversionlbl;
         private System.Windows.Forms.Label fireBaseStatusLabel;
         private System.Windows.Forms.Button debugButton;
+        private System.Windows.Forms.ProgressBar pobieramBar;
+        private System.Windows.Forms.Label pobieramLabl;
     }
 }
 
